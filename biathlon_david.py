@@ -37,15 +37,16 @@ def biathlon():
         round_nr = i+1
         print(" ".join(str(num) for num in list_of_nums))
         print(" ".join(str(target_dict[key]) for key in ["1", "2", "3", "4", "5"]))
-        
-        try:
-            player_shot = input(f"shot nr {round_nr} at: ")
-            if player_shot not in target_dict:
-                raise wrong_input
-        except wrong_input:
-            print("Incorrect value, try again\n")
-        finally:
-            target_dict[player_shot] = shoot(player_shot, target_dict)
+        while True:
+            try:
+                player_shot = input(f"shot nr {round_nr} at: ")
+                if player_shot not in target_dict:
+                    raise wrong_input()
+            except wrong_input:
+                print("\nIncorrect value, try again\n")
+            else:
+                target_dict[player_shot] = shoot(player_shot, target_dict)
+                break
     print(" ".join(str(num) for num in list_of_nums))
     print(" ".join(str(target_dict[key]) for key in ["1", "2", "3", "4", "5"]))
     number_of_hits = list(target_dict.values()).count("0")
