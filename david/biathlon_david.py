@@ -129,7 +129,7 @@ def main():
     player0.playerState = player_state.EPS_HasSpoon
     initialize_game()
     begin_play(player0, player1)
-    print(f"{player0.playerName}, you hit {player0.scoreBoard.currentScore} targets!")
+    print(f"\n{player0.playerName}, you hit {player0.scoreBoard.currentScore} targets!")
     player0.load_TargetDict()
     print(f"{player1.playerName}, you hit {player1.scoreBoard.currentScore} targets!")
     player1.load_TargetDict()
