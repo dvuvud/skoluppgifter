@@ -10,6 +10,10 @@ TypeMatchingDict = {
     "5":"５"
     }
 
+class game_instance():
+    def __init__(self):
+        self.playerInstances = []
+
 class player_state(Enum):
     EPS_HasSpoon = 0
     EPS_NotHasSpoon = 1
@@ -50,9 +54,10 @@ class player():
             print("\nMiss")
             return
         elif self.targetsDict[TypeMatchingDict[player_input]] == "◯":
-            print("\nHit on open target")
+            print(f"\n{self.playerName} got a hit on an open target")
             self.scoreBoard.add_to_score()
             self.targetsDict[TypeMatchingDict[player_input]] = hit_or_miss
+            self.load_TargetDict()
             return
         elif self.targetsDict[TypeMatchingDict[player_input]] == "⭐":
             print("\nHit on closed target")
@@ -66,33 +71,62 @@ class score_board():
         self.currentScore+=1
 
 
+def IH_name_assignment_context():
+    bNameAssigned = False
+    while bNameAssigned == False:
+        try:
+            playerNameString = str(input(f"\nEnter a name for player {len(player.PlayerNames)}: "))
+            for playerName in player.PlayerNames:
+                if playerNameString == playerName:
+                    raise name_taken()
+            return playerNameString
+        except name_taken:
+            print ("\nName already taken. Try again")
+    return 0
+    
+
+def IH_shooting_context(playerObj):
+    bShotMade = False
+    while bShotMade == False:
+        try:
+            player_input = input(f"\nshot nr {6 - playerObj.remainingRounds} at: ")
+            if player_input not in TypeMatchingDict:
+                raise wrong_input()
+            return player_input
+        except wrong_input:
+            print("\nIncorrect input value, try again")
+    return 0
+
+
+def IH_init_player_context():
+    bAmountChosen = False
+    while bAmountChosen == False:
+        try:
+            player_input = int(input("\nEnter desired number of players (Min 1)(Max 10): "))
+            if player_input < 1 or player_input > 10:
+                raise wrong_input()
+            return player_input
+        except wrong_input:
+            print("\nAmount outside scope, try again")
+        except ValueError:
+            print("\nExpecting int, try again")
+    return 0
+
+
 def input_handling(context, playerObj=None):
     if context == "NameAssignmentContext":
-        bNameAssigned = False
-        while bNameAssigned == False:
-            try:
-                playerNameString = str(input(f"Enter a name for player {len(player.PlayerNames)}: "))
-                for playerName in player.PlayerNames:
-                    if playerNameString == playerName:
-                        raise name_taken()
-                return playerNameString
-            except name_taken:
-                print ("Name already taken. Try again\n")
+        return IH_name_assignment_context()
     elif context == "ShootingContext":
-        bShotMade = False
-        while bShotMade == False:
-            try:
-                player_input = input(f"\nshot nr {6 - playerObj.remainingRounds} at: ")
-                if TypeMatchingDict[player_input] not in playerObj.targetsDict:
-                    raise wrong_input()
-                return player_input
-            except wrong_input:
-                print("\nIncorrect input value, try again")
-            except TypeError:
-                print("\nIncorrect input value, try again")
-            except KeyError:
-                print("\nIncorrect input value, try again")   
+        return IH_shooting_context(playerObj)
+    elif context == "InitPlayerContext":
+        return IH_init_player_context()
     return "Unknown"
+
+
+def init_player_instances(playerAmount, gameInstanceObject):
+    for _ in range (playerAmount):
+        new_player = player(input_handling("NameAssignmentContext"))
+        gameInstanceObject.playerInstances.append(new_player)
 
 
 def initialize_game():
@@ -103,36 +137,31 @@ def initialize_game():
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
 
-def begin_play(player0, player1):
+def begin_play(gameInstanceObject):
     bIsGameOver = False
     while bIsGameOver == False:
-        if player0.remainingRounds == 0 and player1.remainingRounds == 0:
-            bIsGameOver = True
-        elif player0.playerState == player_state.EPS_HasSpoon:
-            print(f"\n{player0.playerName}, you got {player0.remainingRounds} shots\n")
-            player0.load_TargetDict()
-            player0.shoot(input_handling("ShootingContext", player0))
-            player0.take_spoon()
-            player1.give_spoon()
-        elif player1.playerState == player_state.EPS_HasSpoon:
-            print(f"\n{player1.playerName}, you got {player1.remainingRounds} shots\n")
-            player1.load_TargetDict()
-            player1.shoot(input_handling("ShootingContext", player1))
-            player1.take_spoon()
-            player0.give_spoon()
+        for playerObj in gameInstanceObject.playerInstances:
+            if playerObj.remainingRounds > 0:
+                playerObj.give_spoon()
+            else:
+                bIsGameOver = True
+                continue
+            if playerObj.playerState == player_state.EPS_HasSpoon:
+                print(f"\n{playerObj.playerName}, you got {playerObj.remainingRounds} shot(s)\n")
+                playerObj.load_TargetDict()
+                playerObj.shoot(input_handling("ShootingContext", playerObj))
+                playerObj.take_spoon()
+                continue
     return
 
 
 def main():
-    player0 = player(input_handling("NameAssignmentContext"))
-    player1 = player(input_handling("NameAssignmentContext"))
-    player0.playerState = player_state.EPS_HasSpoon
+    gameInstance = game_instance()
+    init_player_instances(input_handling("InitPlayerContext"), gameInstance)
     initialize_game()
-    begin_play(player0, player1)
-    print(f"\n{player0.playerName}, you hit {player0.scoreBoard.currentScore} targets!")
-    player0.load_TargetDict()
-    print(f"{player1.playerName}, you hit {player1.scoreBoard.currentScore} targets!")
-    player1.load_TargetDict()
-    
+    begin_play(gameInstance)
+    for playerObj in gameInstance.playerInstances:
+        print(f"\n{playerObj.playerName}, you hit {playerObj.scoreBoard.currentScore} targets!")
+        playerObj.load_TargetDict()
     
 main()
