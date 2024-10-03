@@ -1,3 +1,5 @@
+import random
+
 def generate_target_visualization(targets):
     target_states_visual = []
 
@@ -13,7 +15,20 @@ def generate_target_visualization(targets):
 
 def shoot_at_target(targets, target_number):
     # uppdatera andra indexet i target till 1, vilket innebär stängd/träffad
-    targets[target_number - 1][1] = 1
+    target = targets[target_number - 1]
+
+    if(target[1] == 1):
+        print("Miss!")
+        return targets
+    
+    hit_percentage = 80
+    roll = random.randint(1,100)
+
+    if(roll < hit_percentage):
+        targets[target_number - 1][1] = 1
+        print("Hit on target " + str(target_number) + "!")
+    else:
+        print("Miss!")
 
     return targets
 
@@ -58,4 +73,4 @@ for _ in range(5):
     shoot_at_target(targets, user_input)
 
 print("------------------")
-print("Score: ", get_score(targets))
+print("You hit " + str(get_score(targets)) + " out of 5 targets.")
