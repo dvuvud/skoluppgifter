@@ -1,76 +1,111 @@
-import random
+import random, time
+
+def show_splash():
+    print("======================================")
+    print("    BIATHLON - A HIT OR MISS GAME    ")
+    print("======================================\n")
+
+def create_players(player_amount):
+    players = []
+
+    for x in range(player_amount):
+        targets = [False] * 5
+    
+        players.append([x + 1, targets])
+
+    return players
+
 
 def generate_target_visualization(targets):
-    target_states_visual = []
+    target_visual = []
 
     for target in targets:
-        target_state = target[1]
-
-        if(target_state == 0):
-            target_states_visual.append("O")
+        if(target == False):
+            target_visual.append("O")
         else:
-            target_states_visual.append("[]")
+            target_visual.append("[]")
         
-    return " ".join(target_states_visual)
+    return " ".join(target_visual)
 
 def shoot_at_target(targets, target_number):
-    # uppdatera andra indexet i target till 1, vilket innebär stängd/träffad
     target = targets[target_number - 1]
-
-    if(target[1] == 1):
-        print("Miss!")
-        return targets
     
     hit_percentage = 80
     roll = random.randint(1,100)
 
     if(roll < hit_percentage):
-        targets[target_number - 1][1] = 1
+        if(target == True):
+            print("Hit on already closed target!")
+            return targets
+
+        targets[target_number - 1] = True
         print("Hit on target " + str(target_number) + "!")
+        print(generate_target_visualization(targets))
     else:
         print("Miss!")
 
     return targets
 
-def get_target_number_input():
+def get_number_input(min, max, message):
     valid_input = False
 
     while valid_input == False:
         try:
-            user_input = input("Shoot at: ")
+            user_input = input(message)
             
             user_input_converted = int(user_input)
 
-            if(user_input_converted > 0 and user_input_converted < 6):
+            if(user_input_converted >= min and user_input_converted <= max):
                 valid_input = True
         except:
             print("Invalid input")
 
     return user_input_converted
 
-def get_score(targets):
-    score = 0
+def show_winner(players):
+    player_ids_with_highest_score = []
+    highest_score = 0
 
-    for target in targets:
-        if(target[1] == 1):
-            score += 1
+    for player in players:
+        targets = player[1]
 
-    return score
+        score = 0
+        for target in targets:
+            if(target == True):
+                score += 1
 
-targets = [
-    [1,0],
-    [2,0],
-    [3,0],
-    [4,0],
-    [5,0]
-]
+        if score > highest_score:
+            player_ids_with_highest_score = [player[0]]
+            highest_score = score
+        elif score == highest_score:
+            player_ids_with_highest_score.append(player[0])
 
-for _ in range(5):
-    print(generate_target_visualization(targets))
+    if len(player_ids_with_highest_score) > 1:
+        print("\nIt's a tie between players " + ", ".join(map(str, player_ids_with_highest_score)) + "!")
+    else:
+        print("\nPlayer " + str(player_ids_with_highest_score[0]) + " wins!")
 
-    user_input = get_target_number_input()
+        
+def main():
+    amount_of_players = 4
+    
+    players = create_players(amount_of_players)
 
-    shoot_at_target(targets, user_input)
+    show_splash()
 
-print("------------------")
-print("You hit " + str(get_score(targets)) + " out of 5 targets.")
+    for round in range(1,6):
+        for player in players:
+            print("\n==== ROUND " + str(round) + ", Player " + str(player[0]) + " ====\n")
+
+            targets = player[1]
+
+            print(generate_target_visualization(targets))
+            
+            target_to_shoot_at = get_number_input(1, 5, "\nSelect target to shoot at: ")
+            targets = shoot_at_target(targets, target_to_shoot_at)
+
+            time.sleep(0)
+
+    show_winner(players)
+
+main()
