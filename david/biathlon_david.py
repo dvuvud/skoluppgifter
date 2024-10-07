@@ -1,4 +1,5 @@
 import random
+import time
 from enum import Enum
 from typing import List
 
@@ -51,16 +52,16 @@ class player():
     def shoot(self, player_input):
         hit_or_miss = random.choice(["◯", "⭐"])
         if hit_or_miss == "◯":
-            print("\nMiss")
+            type_text(f"\n{self.playerName} missed the target\n")
             return
         elif self.targetsDict[TypeMatchingDict[player_input]] == "◯":
-            print(f"\n{self.playerName} got a hit on an open target")
+            type_text(f"\n{self.playerName} hit an open target\n\n")
             self.scoreBoard.add_to_score()
             self.targetsDict[TypeMatchingDict[player_input]] = hit_or_miss
             self.load_TargetDict()
             return
         elif self.targetsDict[TypeMatchingDict[player_input]] == "⭐":
-            print("\nHit on closed target")
+            type_text("\n{self.playerName} hit a closed target\n")
             return
     
     
@@ -70,6 +71,11 @@ class score_board():
     def add_to_score(self):
         self.currentScore+=1
 
+def type_text(text):
+    for char in text:
+        delay = random.uniform(0.05, 0.15)
+        print(char, end='', flush=True)
+        time.sleep(delay)
 
 def IH_name_assignment_context():
     bNameAssigned = False
@@ -147,7 +153,7 @@ def begin_play(gameInstanceObject):
                 bIsGameOver = True
                 continue
             if playerObj.playerState == player_state.EPS_HasSpoon:
-                print(f"\n{playerObj.playerName}, you got {playerObj.remainingRounds} shot(s)\n")
+                type_text(f"\n{playerObj.playerName}, you got {playerObj.remainingRounds} shot(s)\n\n")
                 playerObj.load_TargetDict()
                 playerObj.shoot(input_handling("ShootingContext", playerObj))
                 playerObj.take_spoon()
@@ -161,7 +167,7 @@ def main():
     initialize_game()
     begin_play(gameInstance)
     for playerObj in gameInstance.playerInstances:
-        print(f"\n{playerObj.playerName}, you hit {playerObj.scoreBoard.currentScore} targets!")
+        type_text(f"\n{playerObj.playerName}, you hit {playerObj.scoreBoard.currentScore} targets!")
         playerObj.load_TargetDict()
     
 main()
