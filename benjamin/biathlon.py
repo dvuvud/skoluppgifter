@@ -66,8 +66,12 @@ def show_winner(players):
     player_ids_with_highest_score = []
     highest_score = 0
 
+    print("\n")
+
     for player in players:
         targets = player[1]
+
+        print("Player " + str(player[0]) + ": " + generate_target_visualization(targets))
 
         score = 0
         for target in targets:
