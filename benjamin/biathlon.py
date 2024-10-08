@@ -104,7 +104,7 @@ def main():
             target_to_shoot_at = get_number_input(1, 5, "\nSelect target to shoot at: ")
             targets = shoot_at_target(targets, target_to_shoot_at)
 
-            time.sleep(0)
+            time.sleep(2)
 
     show_winner(players)
 
