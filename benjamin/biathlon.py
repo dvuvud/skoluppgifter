@@ -1,7 +1,7 @@
 import random, time
 
 def show_splash():
-    print("======================================")
+    print("\n======================================")
     print("    BIATHLON - A HIT OR MISS GAME    ")
     print("======================================\n")
 
@@ -35,14 +35,14 @@ def shoot_at_target(targets, target_number):
 
     if(roll < hit_percentage):
         if(target == True):
-            print("Hit on already closed target!")
+            print("\nHit on already closed target!")
             return targets
 
         targets[target_number - 1] = True
-        print("Hit on target " + str(target_number) + "!")
+        print("\nHit on target " + str(target_number) + "!")
         print(generate_target_visualization(targets))
     else:
-        print("Miss!")
+        print("\nMiss!")
 
     return targets
 
@@ -87,11 +87,11 @@ def show_winner(players):
 
         
 def main():
-    amount_of_players = 4
+    show_splash()
+
+    amount_of_players = get_number_input(1, 10, "Choose amount of players (1-10): ")
     
     players = create_players(amount_of_players)
-
-    show_splash()
 
     for round in range(1,6):
         for player in players:
@@ -101,7 +101,7 @@ def main():
 
             print(generate_target_visualization(targets))
             
-            target_to_shoot_at = get_number_input(1, 5, "\nSelect target to shoot at: ")
+            target_to_shoot_at = get_number_input(1, 5, "\nSelect target to shoot at (1-5): ")
             targets = shoot_at_target(targets, target_to_shoot_at)
 
             time.sleep(2)
