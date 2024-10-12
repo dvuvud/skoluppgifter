@@ -167,7 +167,7 @@ def main():
     initialize_game()
     begin_play(gameInstance)
     for playerObj in gameInstance.playerInstances:
-        type_text(f"\n{playerObj.playerName}, you hit {playerObj.scoreBoard.currentScore} targets!")
+        type_text(f"\n{playerObj.playerName}, you hit {playerObj.scoreBoard.currentScore} targets!\n")
         playerObj.load_TargetDict()
     
 main()

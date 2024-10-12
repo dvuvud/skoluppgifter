@@ -11,6 +11,9 @@ class StringLengthError(Exception):
 class IllegalCharacterError(Exception):
     pass
 
+class EmptyStringError(Exception):
+    pass
+
 class InputTYPE(Enum):
     INPT_USERNAME = 1
     INPT_PASSWORD = 2
@@ -43,8 +46,9 @@ class RequestHandler(socketserver.BaseRequestHandler):
             data = receive_data(self.request)
             if data:
                 print(f"Received: {data}")
-                response = self.process_request(data)
-                send_data(self.request, response)
+                self.process_request(data)
+            elif not data:
+                break
 
     def process_request(self, data):
         # request responses
@@ -52,32 +56,55 @@ class RequestHandler(socketserver.BaseRequestHandler):
             username = input_handling(InputTYPE.INPT_USERNAME, None, self)
             password = input_handling(InputTYPE.INPT_PASSWORD, None, self)
             user_id = hash(username) # the user id is dependant on the username through the hash function
+            if username is None or password is None:
+                return
             new_user = User(username,password,user_id)
             Storage.user_objects[user_id] = new_user
-            send_data(self.request, "User Created")
+            send_data(self.request, "User created")
+            print("User created")
         elif data == "LOGIN":
-            """
-            logic for assigning the current user to the session
-            hard to understand gotta rewrite if I have time
-            """
-            send_data(self.request, "REQUEST_INPUT")
-            if receive_data(self.request) != "RECEIPT":
-                    return
-            send_data(self.request, "Enter username: ")
-            user_id = hash(receive_data(self.request))
+            login(self)
+            return
+
+def login(request_handler):
+    """
+logic for assigning the current user to the session
+hard to understand gotta rewrite if I have time
+    """
+    user_object = None
+    while True:
+        try:
+            data = request_input(request_handler.request, "Enter username: ")
+
+            if data == "EMPTY_STRING":
+                raise EmptyStringError()
+            user_id = hash(data)
             if user_id in Storage.user_objects:
-                send_data(self.request, "REQUEST_INPUT")
-                if receive_data(self.request) != "RECEIPT":
+                user_object = Storage.user_objects[user_id]
+
+                send_data(request_handler.request, "Accepted")
+                data = request_input(request_handler.request, "Enter password: ")
+
+                if data == "EMPTY_STRING":
+                    raise EmptyStringError()
+                if Storage.user_objects[user_id].password == data:
+                    request_handler.currentuser = Storage.user_objects[user_id]
+                    print(f"Client now logged in as {request_handler.currentuser.username}")
+                    send_data(request_handler.request, "Logged in")
+                    in_session(request_handler, user_object)
                     return
-                send_data(self.request, "Enter password: ")
-                if Storage.user_objects[user_id].password == receive_data(self.request):
-                    self.currentuser = Storage.user_objects[user_id]
-                    print(f"Client now logged in as {self.currentuser.username}")
-                    send_data(self.request, f"Now logged in as {self.currentuser.username}")
                 else:
-                    send_data(self.request, "Incorrect password, try again")
+                    send_data(request_handler.request, "Incorrect password, try again")
+                    continue
             else:
-                send_data(self.request, "User doesn't exist")
+                send_data(request_handler.request, "User doesn't exist")
+                continue
+        except EmptyStringError:
+            send_data(request_handler.request, "ERROR: input cannot be empty")
+            continue
+
+def in_session(request_handler, user_object):
+    print("Sessioning")
 
 def start_server(host, port):
     with socketserver.TCPServer((host, port), RequestHandler) as server:
@@ -90,12 +117,17 @@ def input_handling(context, input = None, request_handler = None):
         while True:
             try:
                 data = request_input(request_handler.request, "Choose a username between 3-12 characters: ")
-                if hash(data) in Storage.user_objects: # if the user id already exists the name is also already taken
+
+                if data == "EMPTY_STRING":
+                    raise EmptyStringError()
+                elif hash(data) in Storage.user_objects: # if the user id already exists the name is also already taken
                     raise NameTakenError()
                 elif len(data) < 3 or len(data) > 12:
                     raise StringLengthError()
                 elif ' ' in data:
-                    IllegalCharacterError()
+                    raise IllegalCharacterError()
+                print(f"Username chosen: {data}")
+                send_data(request_handler.request, (f"Username chosen: {data}"))
                 return data
             except NameTakenError:
                 send_data(request_handler.request, "ERROR: Username is already taken")
@@ -109,13 +141,20 @@ def input_handling(context, input = None, request_handler = None):
                 send_data(request_handler.request, "ERROR: String contains illegal character(s)")
                 print("ERROR: String contains illegal character(s)")
                 continue
+            except EmptyStringError:
+                send_data(request_handler.request, "ERROR: input cannot be empty")
+                continue
+            except TypeError:
+                return
     
     elif context == InputTYPE.INPT_PASSWORD:
         while True:
             try:
-                request_input(request_handler.request, "Choose a password between 3-12 character: ")
-                data = receive_data(request_handler.request)
-                if len(data) < 3 or len(data) > 12:
+                data = request_input(request_handler.request, "Choose a password between 3-12 character: ")
+
+                if data == "EMPTY_STRING":
+                    raise EmptyStringError()
+                elif len(data) < 3 or len(data) > 12:
                     raise StringLengthError()
                 elif ' ' in data:
                     raise IllegalCharacterError()
@@ -128,6 +167,11 @@ def input_handling(context, input = None, request_handler = None):
                 send_data(request_handler.request, "ERROR: String contains illegal character(s)")
                 print("ERROR: String contains illegal character(s)")
                 continue
+            except EmptyStringError:
+                send_data(request_handler.request, "ERROR: input cannot be empty")
+                continue
+            except TypeError:
+                return
             
             
 
