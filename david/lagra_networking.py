@@ -10,11 +10,8 @@ def send_data(s, message):
         elif message == "":
             message = "EMPTY_STRING"
         s.sendall(message.encode("utf-8"))
-    except socket.error as e:
-        if e.errno == 10054:
-            print("Client disconnected.")
-        else:
-            print(f"Error sending data: {e}")
+    except Exception as e:
+        print(f"Error receiving data: {e}")
 
 def receive_data(s, buffer_size=1024):
     """
@@ -25,13 +22,8 @@ def receive_data(s, buffer_size=1024):
         if data == None:
             return None
         return data.decode("utf-8")
-    except socket.error as e:
-        if e.errno == 10054:
-            print("Client disconnected.")
-            return None
-        else:
-            print(f"Error receiving data: {e}")
-            return None
+    except Exception as e:
+        print(f"Error receiving data: {e}")
 
 def request_input(s, message):
     try:
@@ -39,7 +31,7 @@ def request_input(s, message):
         data = receive_data(s)
         if data == "RECEIPT":
             send_data(s, message)
-            user_input = receive_data(s)
+            user_input = receive_data(s, 1024)
             return user_input
     except Exception as e:
         print(f"Error receiving data: {e}")

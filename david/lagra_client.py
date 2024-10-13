@@ -26,7 +26,31 @@ def in_session(s):
     print("In session")
     bIsSession = True
     while bIsSession:
-        print("Sessioning")
+        print("'1' to look at the shared storage")
+        print("'2' to take and item from the shared storage")
+        print("'3' to look at your personal storage")
+        print("'4' to move an item from your personal storage")
+        try:
+            user_input = 0
+            user_input = int(input())
+        except ValueError:
+            print("ValueError")
+        if user_input == 1:
+            send_data(s, "FETCH_SS")
+            print(receive_data(s))
+        elif user_input == 2:
+            send_data(s, "TAKE_SS")
+            print(receive_data(s))
+            return_input(s)
+            print(receive_data(s))
+        elif user_input == 3:
+            send_data(s, "FETCH_PS")
+            print(receive_data(s))
+        elif user_input == 4:
+            send_data(s, "MOVE_PS")
+            print(receive_data(s))
+            return_input(s)
+            print(receive_data(s))
 
 
 def main():
