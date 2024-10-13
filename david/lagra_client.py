@@ -19,6 +19,11 @@ def login(s):
         print(data)
         if data == "Logged in":
             break
+        else:
+            user_choice = input("press enter to try again or 'exit' to quit: ")
+            if user_choice.lower() == "exit":
+                print("Program terminated")
+                return 1
     in_session(s) # as long as player is logged in this will be the active function
     return # as soon as in_session() returns everything goes back to the main() function
 
@@ -64,7 +69,8 @@ def main():
                 break
             elif user_input == '1':
                 send_data(s, "LOGIN")
-                login(s)
+                if login(s) == 1:
+                    break
             elif user_input == '2':
                 send_data(s, "CREATE_USER")
                 create_user(s)
