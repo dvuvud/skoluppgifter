@@ -19,7 +19,7 @@ def login(s):
         print(data)
         if data == "Logged in":
             break
-        else:
+        elif data == "User doesn't exist" or data == "Incorrect password, try again":
             user_choice = input("press enter to try again or 'exit' to quit: ")
             if user_choice.lower() == "exit":
                 print("Program terminated")
