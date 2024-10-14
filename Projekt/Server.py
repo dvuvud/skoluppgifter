@@ -1,10 +1,11 @@
 import socketserver
+import server_backend
 
 HOST, PORT = 'localhost', 8585
 
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
-    def handle(self):
+    def handle(self): # den här funktionen körs en gång när servern blivit kopplad till en klient
         print(f"Connection from {self.client_address}")
         while True:
             try:
