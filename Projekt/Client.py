@@ -1,7 +1,7 @@
 import socket
 import threading
 
-SERVER_HOST = 'server ip'
+SERVER_HOST = 'localhost'
 SERVER_PORT = 8585
 
 def start_client():
@@ -10,6 +10,10 @@ def start_client():
     s.connect((SERVER_HOST, SERVER_PORT))
 
     print("Connected to the server.")
+    bHasConnection = True
+    while bHasConnection:
+        print("Is connected")
+
 
 
 if __name__ == "__main__":
