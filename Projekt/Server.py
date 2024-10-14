@@ -5,6 +5,9 @@ HOST, PORT = 'localhost', 8585
 
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+    def __init__(self, *args, **kwargs):
+        self.currentuser = None
+        super().__init__(*args, **kwargs)
     def handle(self): # den här funktionen körs en gång när servern blivit kopplad till en klient
         print(f"Connection from {self.client_address}")
         while True:
