@@ -1,5 +1,7 @@
 import socketserver
 import server_backend
+from network_calls import send_data, receive_data
+import server_backend
 
 HOST, PORT = 'localhost', 8585
 
@@ -13,14 +15,15 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         while True:
             try:
                 # Receive data
-                data = self.request.recv(1024)
+                data = receive_data(self.request)
                 if not data:
                     print(f"Client {self.client_address} disconnected.")
                     break
-
-                # Response
-                print(f"Received from {self.client_address}: {data.decode()}")
-                self.request.sendall(b"Message received!")
+                elif data == 'LOGIN':
+                    login(self)
+                elif data == 'CREAT_ACCOUNT':
+                    create_account()
+                
             except ConnectionResetError:
                 print(f"Connection with {self.client_address} lost.")
                 break
