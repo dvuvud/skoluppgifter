@@ -99,7 +99,7 @@ class User():
         Storage.user_objects[self.user_id] = self
 
 
-class RequestHandler(socketserver.BaseRequestHandler):
+class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def __init__(self, *args, **kwargs):
         self.currentuser = None
         super().__init__(*args, **kwargs)
@@ -173,7 +173,7 @@ hard to understand gotta rewrite if I have time
 
 
 def start_server(host, port):
-    with socketserver.TCPServer((host, port), RequestHandler) as server:
+    with socketserver.ThreadingTCPServer((host, port), ThreadedTCPRequestHandler) as server:
         print("Server is listening on port", port)
         server.serve_forever()
 
