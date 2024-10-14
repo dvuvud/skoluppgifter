@@ -22,7 +22,6 @@ def start_client(): # den hör funktionen körs en gång när man kopplas till s
             break
 
 
-
 if __name__ == "__main__":
     start_client()
 
