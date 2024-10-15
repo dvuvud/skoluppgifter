@@ -87,8 +87,6 @@ def in_session(request_handler, user_object):
         except Exception as e:
             print(f"ERROR: {e}")
             
-                
-
 
 class User():
     def __init__(self, usrname, pswd, usrid):
