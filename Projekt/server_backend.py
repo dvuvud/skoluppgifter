@@ -26,7 +26,7 @@ ServerResponse = namedtuple('ServerResponse', ['outcome', 'message'])
 
 """
 Har ännu inte bestämt, men det verkar som att det inte går att serializa namedtuples så vi kanske får använda dictionaries istället
-Återigen borde create_chat_message ligga på klientens sida, men vi löser det sen
+Återigen kanske create_chat_message borde ligga på klientens sida, men vi löser det sen
 """
 def create_chat_message(p_sender, p_message):
     return {
