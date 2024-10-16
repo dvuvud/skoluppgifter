@@ -3,6 +3,21 @@ import time
 import keyboard
 
 
+
+"""
+En skriftlig förklaring för vad jag gör.
+
+Jag flyttar cursorn längst till vänster där input texten är utprintad.
+Alltså input("(cursor flyttas hit)Input text: ")
+Sedan använder jag print("\033[K", end='') för att ta bort allt till höger om cursorn på den rad.
+Därefter printar jag det nya meddelandet.
+Sedan printar jag input meddelandet igen och lägger till alla element i listan pressed_keys[],
+vilket är en lista som sparar de giltiga knappar jag har tryckt på.
+
+Jag tycker att vi gör om en helt ny fil för att göra en funktion av allt det här när vi faktiskt ska använda det sen
+
+"""
+
 pressed_keys = []
 input_question_thing = "Enter something:"
 def random_messages():
