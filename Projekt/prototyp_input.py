@@ -2,6 +2,10 @@ import threading
 import time
 import keyboard
 
+"""
+dependencies:
+pip install keyboard
+"""
 
 
 """
