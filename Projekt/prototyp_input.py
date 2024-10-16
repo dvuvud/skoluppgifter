@@ -33,13 +33,13 @@ def on_press(event):
         print(' ', end='')
         pressed_keys.append(' ')
         return
-    elif event.name.isalpha() and event.name != 'shift':  # kollar om det är en bokstav i alfabetet
-        if keyboard.is_pressed('shift'): # gör till uppercase
-            if event.name != 'shift':
+    elif event.name.isalpha():  # kollar om det är en bokstav i alfabetet
+        if keyboard.is_pressed('skift'): # gör till uppercase
+            if event.name != 'skift':
                 pressed_keys.append((event.name).upper())
                 print(pressed_keys[-1], end='')
                 return
-            elif event.name == 'shift':
+            elif event.name == 'skift':
                 return
         pressed_keys.append(event.name)
         print(pressed_keys[-1], end='')
