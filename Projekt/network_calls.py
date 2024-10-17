@@ -22,6 +22,8 @@ def receive_data(socket, buffer_size=1024):
         data = json.loads(socket.recv(buffer_size).decode('utf-8')) # return to original format
         if type(data) is str and data == "":
             return 'EMPTY_STRING'
+        elif not data:
+            return None
         return data
     except Exception as e:
         print(f"Error receiving data: {e}")
@@ -63,6 +65,8 @@ def receive_chat(s, buffer_size=1024):
     receiving chats from the server
     """
     data = receive_data(s, buffer_size)
+    if data == None:
+        return data
     if type(data) != dict:
-        return None
+        return 'WRONG_TYPE'
     return data

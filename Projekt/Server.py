@@ -29,6 +29,12 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                     Logic to send user to chatroom
                     """
                     chatroom(self)
+                    break
+                elif data == 'LOG_OUT':
+                    send_data(self.request, f"You logged out of account: {self.currentuser.username}")
+                    print(f"{self.currentuser.username} has logged out")
+                    self.currentuser == None
+                    continue
                 
             except ConnectionResetError:
                 print(f"Connection with {self.client_address} lost.")
@@ -124,17 +130,13 @@ def chatroom(s):
     print(f"{s.currentuser.username} entered the chatroom")
     send_data(s.request, "You entered the chatroom")
     while True:
-        send_data(s.request, 'RECEIVING_CHAT')
-        receipt = receive_data(s.request)
-        if receipt != 'SENDING_CHAT':
-            continue
-        elif receipt == None:
-            return
-        send_data(s.request, "Enter a chat: ")
         chat_message = receive_chat(s.request)
-        if chat_message == None:
-            print("Couldn't receive chat message as None")
+        if chat_message == 'WRONG_TYPE':
+            print("Couldn't receive the chat message")
             continue
+        elif chat_message == None:
+            print("Not data")
+            break
         chat_message['sender'] = s.currentuser.username
         now = datetime.now()
         chat_message['timestamp'] = str(now.strftime("%H:%M"))

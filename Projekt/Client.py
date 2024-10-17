@@ -6,6 +6,7 @@ from record_inputs import take_input, pressed_keys
 import time
 from server_backend import create_chat_message
 
+
 class UndefinedInputError(Exception):
     pass
 
@@ -13,8 +14,7 @@ class UndefinedInputError(Exception):
 SERVER_HOST = 'localhost'
 SERVER_PORT = 8585
 bShouldLog = True
-lock = threading.Lock()
-input_prompt = ''
+input_prompt = 'Enter a chat: '
 
 def start_client(): # function is called when client connects to server
     # set up connection to the server
@@ -31,7 +31,11 @@ def start_client(): # function is called when client connects to server
         """
         Logic to join chat room
         """
-        logged_in(s)
+        outcome = logged_in(s)
+        if outcome == 0:
+            break
+        elif outcome == -1:
+            continue
             
         
 
@@ -100,7 +104,7 @@ def chatroom(s):
     try:
         user_input = str(input("Enter '1' to join chatroom or 'return' to log out (or 'exit' to quit): "))
         if user_input.lower() == 'return':
-            send_data('LOG_OUT')
+            send_data(s, 'LOG_OUT') 
             print(receive_data(s))
             return -1
         elif user_input.lower() == 'exit':
@@ -109,7 +113,7 @@ def chatroom(s):
             print("Input wasn't recognized")
             return 1
     except Exception as e:
-        print("ERROR: {e}")
+        print(f"ERROR: {e}")
         return 1
 
     """
@@ -130,7 +134,6 @@ def chatroom(s):
     sending chat messages
     """
     while True:
-        
         if send_chat(s) == 1:
             print("Failure sending messages, leaving chatroom")
             bShouldLog = False
@@ -141,11 +144,6 @@ def chatroom(s):
 Sending chat messages and recording input
 """
 def send_chat(s):
-    with lock:
-        if receive_data(s) != 'RECEIVING_CHAT':
-            return 1
-        send_data(s, 'SENDING_CHAT')
-        input_prompt = receive_data(s)
     try:
         print(input_prompt, end='')
         chat_message = take_input() # recording inputs
@@ -159,18 +157,16 @@ Logging all incoming chat messages
 """
 def chatlogging(s):
     while bShouldLog:
-        time.sleep(1)
-        with lock:  # threading.Lock() locks all other threads of using certain resource at the same time 
-            chat_message = receive_chat(s)
-            if chat_message == None:
-                continue
-            """
-            Process chat message
-            """
-            print('\r', end='')
-            print("\033[K", end='')
-            print(f"{chat_message['timestamp']} - {chat_message['sender']}: {chat_message['message']}")
-            print(input_prompt, ''.join(pressed_keys), end='')
+        chat_message = receive_chat(s)
+        if chat_message == None:
+            continue
+        """
+        Process chat message
+        """
+        print('\r', end='')
+        print("\033[K", end='')
+        print(f"{chat_message['timestamp']} - {chat_message['sender']}: {chat_message['message']}")
+        print(input_prompt, ''.join(pressed_keys), end='', sep='')
             
             
 
@@ -182,9 +178,9 @@ def logged_in(s):
     while True:
         outcome = chatroom(s)
         if outcome == 0: # User exiting application
-            break
+            return 0
         elif outcome == -1: # User logged out of account
-            return
+            return -1
         elif outcome == 1: # Error caused user to leave chatroom
             continue
 
