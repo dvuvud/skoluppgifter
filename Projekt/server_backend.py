@@ -13,7 +13,7 @@ class User():
         users[self.username] = self
 
 users = {}
-
+request_handlers = {}
 
 now = datetime.now()
 

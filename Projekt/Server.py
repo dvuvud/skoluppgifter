@@ -1,9 +1,9 @@
 import socketserver
 import server_backend
-from network_calls import send_data, receive_data, request_input
+from network_calls import send_data, receive_data, request_input, receive_chat
+from datetime import datetime
 
 HOST, PORT = 'localhost', 8585
-
 
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -24,10 +24,11 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                 elif data == 'CREATE_ACCOUNT':
                     create_account(self)
                     continue
-                elif data == 'JOIN_CHATROOM':
+                elif data == 'JOIN_CHAT':
                     """
                     Logic to send user to chatroom
                     """
+                    chatroom(self)
                 
             except ConnectionResetError:
                 print(f"Connection with {self.client_address} lost.")
@@ -114,6 +115,34 @@ def login(s):
     send_data(s.request, server_backend.create_server_response('SUCCESS', f"Successfully logged in as {username}"))
     print(f"Client {s.client_address} logged in as {username}")
     return
+
+"""
+Whenever player joins chatroom
+"""
+def chatroom(s):
+    server_backend.request_handlers[s.currentuser.username] = s
+    print(f"{s.currentuser.username} entered the chatroom")
+    send_data(s.request, "You entered the chatroom")
+    while True:
+        send_data(s.request, 'RECEIVING_CHAT')
+        receipt = receive_data(s.request)
+        if receipt != 'SENDING_CHAT':
+            continue
+        elif receipt == None:
+            return
+        send_data(s.request, "Enter a chat: ")
+        chat_message = receive_chat(s.request)
+        if chat_message == None:
+            print("Couldn't receive chat message as None")
+            continue
+        chat_message['sender'] = s.currentuser.username
+        now = datetime.now()
+        chat_message['timestamp'] = str(now.strftime("%H:%M"))
+        for username, request_handler in server_backend.request_handlers.items():
+            # print(f"{chat_message['timestamp']} > {chat_message['sender']}: {chat_message['message']}") 
+            send_data(request_handler.request, chat_message)
+
+
 
 
 if __name__ == "__main__":

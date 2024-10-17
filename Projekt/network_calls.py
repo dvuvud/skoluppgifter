@@ -56,3 +56,13 @@ def send_input(socket, buffer_size=1024):
         send_data(socket, input_message)
     except Exception as e:
         print(f"Error sending input: {e}")
+
+
+def receive_chat(s, buffer_size=1024):
+    """
+    receiving chats from the server
+    """
+    data = receive_data(s, buffer_size)
+    if type(data) != dict:
+        return None
+    return data
