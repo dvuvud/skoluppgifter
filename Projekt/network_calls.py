@@ -7,7 +7,7 @@ def send_data(socket, message):
     """
     try:
         if type(message) is str and message == "":
-            print("Can't send empty string")
+            socket.sendall(json.dumps('EMPTY_STRING').encode('utf-8'))
             return
         socket.sendall(json.dumps(message).encode('utf-8')) # encrypt after the json dump
     except Exception as e:

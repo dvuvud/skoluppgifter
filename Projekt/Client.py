@@ -145,7 +145,6 @@ Sending chat messages and recording input
 """
 def send_chat(s):
     try:
-        print(input_prompt, end='')
         chat_message = take_input() # recording inputs
         send_data(s, create_chat_message(None, chat_message))
     except Exception as e:
@@ -157,6 +156,7 @@ Logging all incoming chat messages
 """
 def chatlogging(s):
     while bShouldLog:
+        print(input_prompt, ''.join(pressed_keys), end='', sep='')
         chat_message = receive_chat(s)
         if chat_message == None:
             continue
@@ -166,7 +166,7 @@ def chatlogging(s):
         print('\r', end='')
         print("\033[K", end='')
         print(f"{chat_message['timestamp']} - {chat_message['sender']}: {chat_message['message']}")
-        print(input_prompt, ''.join(pressed_keys), end='', sep='')
+        
             
             
 
