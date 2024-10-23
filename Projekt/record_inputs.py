@@ -1,8 +1,9 @@
-
 import ctypes # to check the current keystate
 import msvcrt # to take inputs
 
 pressed_keys = []
+bEnterLastFrame = False
+KEY_ENTER = 0x0D
 KEY_SHIFT = 0x10
 
 def is_key_pressed(key):
@@ -11,9 +12,28 @@ def is_key_pressed(key):
 
 
 def on_press():
+    global bEnterLastFrame
     while True:
+
+        """
+        "" msvcrt.getch() waits for input so if enter is held down while typing, and released after typing,
+        "" The function wont return when enter is pressed until another key is entered
+        """
+        if is_key_pressed(KEY_ENTER):
+            if not bEnterLastFrame:
+                bEnterLastFrame = True
+                if len(pressed_keys) > 0: # returns if there is any text (can't send empty messages)
+                    return
+        else:
+            bEnterLastFrame = False
+
+
         keypress = msvcrt.getch() # returns a single keypress
         key = keypress.decode('utf-8')
+
+        if is_key_pressed(KEY_ENTER): # stops typing if key is held down, temporary fix to problem
+            continue
+
         if key == '\x08': # checks for backspace
             if len(pressed_keys) > 0:
                 del pressed_keys[-1]
@@ -26,8 +46,6 @@ def on_press():
             pressed_keys.append(' ')
             continue
         elif key.isalpha():
-            if key == '\x00' or key == '\xe0': # checks if the key is shift
-                continue
             if is_key_pressed(KEY_SHIFT):
                 pressed_keys.append((key).upper())
                 print(pressed_keys[-1], end='')
@@ -35,8 +53,14 @@ def on_press():
             pressed_keys.append(key)
             print(pressed_keys[-1], end='')
             continue
-        elif key == '\r': # checks if the key is enter - > which returns the list
-            return
+        elif key.isdigit():
+            pressed_keys.append(key)
+            print(pressed_keys[-1], end='')
+            continue
+        elif key in {'.', ',', '-', '_', '?'}:
+            pressed_keys.append(key)
+            print(pressed_keys[-1], end='')
+            continue
 
 
 def take_input():
